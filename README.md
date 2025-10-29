@@ -13,22 +13,23 @@
 - <https://www.sos.mn.gov/election-administration-campaigns/data-maps/geojson-files/>
 
 # GeoJSON files
+
 GeoJSON is a geospatial data format based on JSON (JavaScript Object Notation) designed for use in online applications. They include voting precinct boundaries as well as the name, county, and election districts (US Congress, MN Senate and House, County Commissioner) for each precinct.
 
 These files are intended to provide basic information regarding the location of election districts within the state. For the most accurate information on precincts and districts, as well as polling place information, please use the [Polling Place Finder](https://www.sos.mn.gov/elections-voting/election-day-voting/where-do-i-vote/).
 
-# Minnesota precincts  - April 2025 (6225 KB json)
+# Minnesota precincts - April 2025 (6225 KB json)
 
-|Congressional District	| as of April 2025|
-|-----------------------|-----------------|
-|District 1 (southern Minnesota)	|C.D. 1 (1062 KB json)|
-|District 2 (south Metro)	|C.D. 2 (383 KB json)|
-|District 3 (greater Hennepin County)	|C.D. 3 (341 KB json)|
-|District 4 (Ramsey County and suburbs)|	C.D. 4 (217 KB json)|
-|District 5 (Minneapolis and suburbs)	|C.D. 5 (171 KB json)|
-|District 6 (northwestern Metro, St Cloud area)|	C.D. 6 (578 KB json)|
-|District 7 (western Minnesota)	|C.D. 7 (1760 KB json)|
-|District 8 (northeastern Minnesota)	|C.D. 8 (1720 KB json)|
+| Congressional District                         | as of April 2025      |
+| ---------------------------------------------- | --------------------- |
+| District 1 (southern Minnesota)                | C.D. 1 (1062 KB json) |
+| District 2 (south Metro)                       | C.D. 2 (383 KB json)  |
+| District 3 (greater Hennepin County)           | C.D. 3 (341 KB json)  |
+| District 4 (Ramsey County and suburbs)         | C.D. 4 (217 KB json)  |
+| District 5 (Minneapolis and suburbs)           | C.D. 5 (171 KB json)  |
+| District 6 (northwestern Metro, St Cloud area) | C.D. 6 (578 KB json)  |
+| District 7 (western Minnesota)                 | C.D. 7 (1760 KB json) |
+| District 8 (northeastern Minnesota)            | C.D. 8 (1720 KB json) |
 
 For state and county boundaries, see [civic-data-boundaries-us](https://github.com/civic-interconnect/civic-data-boundaries-us/).
 
@@ -66,17 +67,13 @@ uv run python -m civic_data_boundaries_us_mn_precincts.build_layer --version 202
 uv run python -m civic_data_boundaries_us_mn_precincts.validate --version 2025-04
 uv run python -m civic_data_boundaries_us_mn_precincts.index
 ```
+
 ---
 
 ## Development
 
 See [DEVELOPER.md](./DEVELOPER.md)
 
-## Pipeline
-
-
-
 ## References
 
 [State of Minnesota - Election Administration & Campaigns - Data & Maps - GeoJSON files](https://www.sos.mn.gov/election-administration-campaigns/data-maps/geojson-files/)
-
