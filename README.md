@@ -68,43 +68,6 @@ uv run python -m civic_data_boundaries_us_mn_precincts.index
 ```
 ---
 
-## Data
-
-This repository **hosts pre-generated GeoJSON output** in `data-out/` for direct use in apps, agents, and public mapping tools.
-
-| File | Description |
-|-------|------------|
-| [`index.json`](https://raw.githubusercontent.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/refs/heads/main/data-out/index.json) | List of all available GeoJSON files with bbox & feature counts |
-| [`manifest.json`](https://raw.githubusercontent.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/refs/heads/main/data-out/manifest.json) | Dataset metadata (source, license, timestamps, totals) |
-| `states/<state>/<file>.geojson` | Per-state boundary files |
-| `national/cd118_us.geojson` | Entire U.S. (all congressional districts) |
-
-### Example: Load from Python
-
-```python
-import requests
-import geopandas as gpd
-
-URL = "https://raw.githubusercontent.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/refs/heads/main/data-out/states/minnesota/cd118_minnesota.geojson"
-
-gdf = gpd.read_file(URL)
-print(gdf.head())
-```
-
-### Example: Load in JavaScript (Leaflet / MapLibre)
-
-```js
-const url = "https://raw.githubusercontent.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/refs/heads/main/data-out/national/cd118_us.geojson";
-
-fetch(url)
-  .then(r => r.json())
-  .then(data => {
-    L.geoJSON(data).addTo(map);
-  });
-```
-
----
-
 ## Development
 
 See [DEVELOPER.md](./DEVELOPER.md)
