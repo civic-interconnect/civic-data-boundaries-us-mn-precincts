@@ -1,0 +1,1 @@
+log_level: debug  # Options: debug, info, warning, error, critical

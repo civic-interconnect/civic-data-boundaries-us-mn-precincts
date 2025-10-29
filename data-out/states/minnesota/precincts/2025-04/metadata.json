@@ -1,0 +1,22 @@
+{
+  "id": "mn-precincts",
+  "title": "Minnesota Precincts",
+  "paths": {
+    "full_geojson": "mn-precincts-full.geojson",
+    "web_geojson": "mn-precincts-web.geojson",
+    "web_topojson": null
+  },
+  "stats": {
+    "features": 4105,
+    "bbox": [
+      -97.2391,
+      43.4994,
+      -89.4918,
+      49.3838
+    ]
+  },
+  "spatial": {
+    "crs": "EPSG:4326",
+    "geometry_type": "Polygon"
+  }
+}

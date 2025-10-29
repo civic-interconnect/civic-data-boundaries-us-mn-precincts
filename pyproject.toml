@@ -1,0 +1,243 @@
+# pyproject.toml
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=77", "setuptools-scm>=8"]
+
+[project]
+name = "civic-data-boundaries-us-mn-precincts" # Package name
+dynamic = ["version"]  # Using setuptools_scm
+description = "Minnesota precinct boundary layers"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [
+    { name="Civic Interconnect", email="info@civic-interconnect.org" }
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Education",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering :: GIS",
+  "Typing :: Typed",
+]
+keywords = [
+  "civic", "gis", "geojson", "boundaries", "precincts", "US", "Minnesota"
+]
+dependencies = [
+  "civic-lib-core",
+  "geopandas",
+  "PyYAML",
+  "shapely",
+  "typer",
+]
+
+[project.optional-dependencies]
+dev = [ # Add all to deptry ignores
+  "pre-commit",
+  "pytest",
+  "pytest-cov",
+  "pytest-env",
+  "twine",
+  "validate-pyproject",
+]
+docs = [ # Add all to deptry ignores
+  "mike",
+  "mkdocs",
+  "mkdocs-gen-files",
+  "mkdocs-git-revision-date-localized-plugin",
+  "mkdocs-include-markdown-plugin",
+  "mkdocs-literate-nav",
+  "mkdocs-material",
+  "mkdocs-static-i18n",
+  "mkdocstrings[python]>=0.18",
+  "ruff", # required for mkdocstrings
+]
+
+[project.urls]
+"Data (index.json)" = "https://raw.githubusercontent.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/refs/heads/main/data-out/index.json"
+"Data (manifest.json)" = "https://raw.githubusercontent.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/refs/heads/main/data-out/manifest.json"
+"Documentation" = "https://civic-interconnect.github.io/civic-data-boundaries-us-mn-precincts/latest"
+"Homepage" = "https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts"
+"Issues" = "https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/issues"
+"Source" = "https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts"
+
+[project.scripts]
+civic-us-mn = "civic_data_boundaries_us_mn_precincts.cli.cli:main"
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]
+skips = ["B101"] # B101: assert statements
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.coverage.paths]
+source = [
+  "src/",
+  "*/site-packages/",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "if self.debug:",
+  "if settings.DEBUG",
+  "raise AssertionError",
+  "raise NotImplementedError",
+  "if 0:",
+  "if __name__ == .__main__.:",
+  "class .*\\bProtocol\\):",
+  "@(abc\\.)?abstractmethod",
+  "# pragma: no cover",
+]
+fail_under = 25
+precision = 1
+show_missing = true
+skip_covered = false
+
+[tool.coverage.run]
+branch = true
+omit = [
+  "*/tests/*",
+  "*/test_*",
+  "*/__pycache__/*",
+]
+source = ["src"]
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+[tool.deptry]
+known_first_party = ["civic_data_boundaries_us_mn_precincts"]
+package_module_name_map = {PyYAML = "yaml"  }
+
+[tool.deptry.per_rule_ignores]
+DEP002 = [
+  # Dev dependencies
+  "pre-commit",
+  "pytest",
+  "pytest-cov",
+  "pytest-env",
+  "twine",
+  "validate-pyproject",
+  # Docs dependencies
+  "mike",
+  "mkdocs",
+  "mkdocs-gen-files",
+  "mkdocs-git-revision-date-localized-plugin",
+  "mkdocs-include-markdown-plugin",
+  "mkdocs-literate-nav",
+  "mkdocs-material",
+  "mkdocs-static-i18n",
+  "mkdocstrings",
+  "ruff",
+]
+
+[tool.pyright]
+executionEnvironments = [
+  {root = "src", extraPaths = ["src"]},
+  {root = "tests", extraPaths = ["src"]},
+]
+ignore = ["**/__pycache__", "build", "dist", ".venv"]
+include = ["src", "tests"]
+pythonVersion = "3.12"
+reportMissingTypeStubs = "warning"
+typeCheckingMode = "basic" # or "strict"
+venv = ".venv"
+venvPath = "."
+
+[tool.pytest.env]
+PYTEST_CURRENT_TEST = "true"
+
+[tool.pytest.ini_options]
+addopts = [
+  "-ra", # show extra test summary info for skipped, failed, etc.
+  "--strict-markers", # enforce marker usage such as "unit", "integration", etc.
+  "--cov=src", # measure coverage for files in src
+  "--cov-report=term-missing", # term-missing:skip-covered is typical
+  "--cov-report=xml:coverage.xml", # output coverage in XML format
+  "--cov-report=html:htmlcov", # output coverage in HTML format
+  "--cov-fail-under=25", # reasonable for types package
+  "-v", # verbose output
+  "--tb=short", # short traceback format
+]
+minversion = "7.0"
+python_files = "test_*.py"
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+exclude = [".venv", ".ruff_cache", "build", "dist", "*.egg-info", ".eggs", "__pycache__", "tests"]
+fix = true
+line-length = 100
+preview = false
+target-version = "py312"
+unsafe-fixes = false
+
+[tool.ruff.format]
+docstring-code-format = true
+line-ending = "lf"
+quote-style = "preserve"
+
+[tool.ruff.lint]
+extend-select = [
+  "F", # Pyflakes rules
+  "W", # PyCodeStyle warnings
+  "E", # PyCodeStyle errors
+  "I", # Sort imports properly
+  "UP", # Newer Python features
+  "C4", # Catch incorrect use of comprehensions, dict, list, etc
+  "C408", # unnecessary comprehension
+  "D", # Docstring conventions
+  "Q", # flake8-quotes
+  "S", # Security issues
+  "C90", # McCabe complexity
+  "N", # Naming conventions
+  "B", # Bugbear
+  "A", # flake8-annotations
+  "PTH", # Use pathlib instead of os.path
+  "RET", # Good return practices
+  "SIM", # flake8-simplify
+  "TID", # flake8-tidy-imports for project conventions
+  "TCH", # flake8-type-checking for type checking imports
+]
+ignore = [
+  "E501", # line length handled by formatter
+  "D203", # 1 blank line before class docstring (conflicts with D211)
+  "D213", # Multi-line docstring summary should start at the second line
+  "D413", # Missing blank line after last section
+  "S101", # assert statements (handled by bandit)
+]
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+
+[tool.ruff.lint.per-file-ignores]
+"src/**/__init__.py" = ["D104"]
+"tests/**/*.py" = ["TID251", "TID252", "S101", "D"]
+"src/**/_version.py" = ["ALL"]
+
+[tool.setuptools]
+include-package-data = true
+package-dir = {"" = "src"}
+
+[tool.setuptools.package-data]
+"civic_data_boundaries_us_mn_precincts" = ["py.typed"]
+
+[tool.setuptools.packages.find]
+namespaces = true
+where = ["src"]
+
+[tool.setuptools_scm]
+fallback_version = "0.0.1"
+local_scheme = "no-local-version"
+version_file = "src/civic_data_boundaries_us_mn_precincts/_version.py"
+version_scheme = "guess-next-dev"

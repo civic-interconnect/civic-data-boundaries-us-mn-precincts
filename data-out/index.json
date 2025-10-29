@@ -1,0 +1,22 @@
+[
+  {
+    "path": "states\\minnesota\\precincts\\2025-04\\mn-precincts-full.geojson",
+    "bbox": [
+      -97.2391,
+      43.4994,
+      -89.4918,
+      49.3838
+    ],
+    "features": 4105
+  },
+  {
+    "path": "states\\minnesota\\precincts\\2025-04\\mn-precincts-web.geojson",
+    "bbox": [
+      -97.2391,
+      43.4994,
+      -89.4918,
+      49.3838
+    ],
+    "features": 4105
+  }
+]

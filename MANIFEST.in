@@ -1,0 +1,22 @@
+# MANIFEST.in file tells what goes in the package
+
+# Include important files
+include LICENSE
+include README.md
+include pyproject.toml
+recursive-include src *.py
+recursive-include src *.typed
++recursive-include data-config *.yaml
+
+# EXCLUDE data directories
+prune data-in
+prune data-out
+prune data
+prune tests
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude *.shp
+global-exclude *.shx
+global-exclude *.dbf
+global-exclude *.zip
+global-exclude *.geojson

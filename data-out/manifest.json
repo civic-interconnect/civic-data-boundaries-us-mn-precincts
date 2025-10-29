@@ -1,0 +1,14 @@
+{
+  "dataset": "mn-precincts",
+  "description": "Minnesota precinct boundaries",
+  "source": "Minnesota Secretary of State",
+  "license": "Public domain",
+  "geometry_type": "Polygon",
+  "generated_at": "2025-10-29 15:24:01 UTC",
+  "total_files": 2,
+  "total_features": 8210,
+  "files_indexed": [
+    "states\\minnesota\\precincts\\2025-04\\mn-precincts-full.geojson",
+    "states\\minnesota\\precincts\\2025-04\\mn-precincts-web.geojson"
+  ]
+}

@@ -1,0 +1,39 @@
+layers:
+  mn_precincts_statewide:
+    nationwide: true
+    url: https://example.state.mn.us/precincts_2025-04.zip
+    output_dir: states/minnesota/precincts_2025-04
+    timeout_sec: 120
+build:
+  version: "2025-04"
+  input_path: "states/minnesota/precincts_2025-04.json"
+  fields_lowercase: true
+  fields_trim: true
+
+  # Source keys are lowercased by the build step, use lowercase
+  fields_rename:
+    precinct: precinct_name        # "Precinct" -> precinct_name
+    precinctid: precinct_id        # "PrecinctID" -> precinct_id
+    county: county                 # "County" -> county
+    congdist: us_house             # "CongDist" -> us_house (optional)
+    mnsendist: mn_senate           # "MNSenDist" -> mn_senate (optional)
+    mnlegdist: mn_house            # "MNLegDist" -> mn_house (optional)
+    ctycomdist: county_commission  # "CtyComDist" -> county_commission (optional)
+
+  # Keep what is needed for mapping and analysis
+  fields_keep:
+    - precinct_id
+    - precinct_name
+    - county
+    - us_house
+    - mn_senate
+    - mn_house
+    - county_commission
+
+  add_fields:
+    snapshot_version: "2025-04"
+    snapshot_date: "2025-04-10"
+
+  write_topojson: false      # set true if you want a TopoJSON "web" output via mapshaper
+  simplify_pct: 0            # 0 = no simplify; >0 uses mapshaper (if available) on the web copy
+  repair_geometries: true

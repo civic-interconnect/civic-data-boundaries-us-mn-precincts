@@ -1,0 +1,98 @@
+# .github/workflows/release.yml
+name: Release (GH Release + PyPI + versioned docs)
+# Designed to run only on version tags (e.g., vx.y.z).
+# Final step before distribution.
+# It builds distribution files, runs tests, prepares release, and publishes.
+# IMPORTANT: The PyPI project must enable Trusted Publishers and recognize this repository.
+
+on:
+  push:
+    tags:
+      - "v*.*.*"  # trigger only on version tags like vx.y.z
+
+permissions:
+  contents: write   # create the GitHub Release
+  id-token: write   # PyPI Trusted Publishing (OIDC)
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      # ------------------- ASSEMBLE -------------------
+
+      - name: A1) Checkout (with full history for tags)
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # Full history for tags
+
+      - name: A2) Install uv (with caching)
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: A3) Pin Python version for consistency
+        run: uv python pin 3.12
+
+      - name: A4) Display version information
+        run: |
+          python --version
+          uv --version
+          uv pip list | head -n 50
+
+      - name: A5) Sync to install dependencies
+        run: |
+            uv sync --extra dev --extra docs --upgrade
+
+      # ------------------- COVERAGE (TESTING) -------------------
+
+      - name: C1) Run tests (pytest; coverage per pytest.ini)
+        run: uv run pytest -q
+
+      # ------------ DEPLOY (SANITY CHECKS, VERIFY BUILDS) -------------------
+
+      - name: D0) Extract plain version from tag (no leading 'v')
+        id: ver
+        shell: bash
+        run: echo "plain=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: D1) Build sdist + wheel
+        run: uv build
+
+      - name: D2) Validate built artifacts
+        run: uv run twine check dist/*
+
+      - name: D3) List dist artifacts
+        run: ls -lah dist
+
+      - name: D4) Create GitHub Release and upload artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}   # e.g., vx.y.z
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
+          draft: false
+          prerelease: false
+          make_latest: true
+
+      - name: D5) Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: D6) Ensure 'latest' is not a version (self-heal)
+        if: hashFiles('mkdocs.yml', 'mkdocs.yaml') != ''
+        run: uv run mike delete latest --push || true
+
+      - name: D7) Deploy docs with Mike for this version and set latest
+        if: hashFiles('mkdocs.yml', 'mkdocs.yaml') != ''
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          VERSION="${{ steps.ver.outputs.plain }}"
+          echo "Deploying docs for version: $VERSION"
+          uv run mike deploy --push --update-aliases "$VERSION" latest
+          uv run mike set-default --push latest

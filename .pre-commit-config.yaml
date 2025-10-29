@@ -1,0 +1,99 @@
+# .pre-commit-config.yaml
+#
+# This file runs quality checks through uvx.
+#
+# Install after creating virtual environment:
+#   uvx pre-commit install
+#
+# Periodically update:
+#   uvx pre-commit autoupdate
+#
+# Run all checks (might have to run it twice):
+#   uvx pre-commit run --all-files
+---
+# Don't attempt to format these kinds of files
+exclude: |
+  (?x)^(
+    \.DS_Store|
+    \.coverage|
+    \.ipynb_checkpoints/|
+    \.mypy_cache/|
+    \.nox/|
+    \.pytest_cache/|
+    \.ruff_cache/|
+    \.tox/|
+    \.venv/|
+    .*\.(egg-info)/|
+    build/|
+    coverage\.xml|
+    dist/|
+    htmlcov/|
+    node_modules/|
+    site/
+  )
+
+repos:
+
+  # ------------------- ALL LOCAL FIRST ---------------------
+
+  - repo: local
+    hooks:
+      # ------------------- BASELINE CHECKS -------------------
+
+      - id: B1-validate-pyproject
+        name: B1) Validate pyproject
+        entry: uvx validate-pyproject
+        language: system
+        pass_filenames: false
+        files: pyproject.toml
+
+      - id: B2-ruff-format
+        name: B2) Ruff format (normalize EOF and whitespace)
+        entry: uvx ruff format
+        language: system
+        types: [python]
+
+      - id: B3-ruff-check
+        name: B3) Ruff check (lint, autofix)
+        entry: uvx ruff check --fix
+        language: system
+        types: [python]
+
+      - id: B4-deptry
+        name: B4) Deptry (dependency check)
+        entry: uvx deptry . 
+        language: system
+        pass_filenames: false
+
+      - id: B5-pyright
+        name: B5) Pyright (type checking)
+        entry: uvx pyright
+        language: system
+        pass_filenames: false
+        types: [python]
+
+      - id: B6-bandit
+        name: B6) Bandit (security)
+        entry: uvx bandit -c pyproject.toml -r src
+        language: system
+        pass_filenames: false
+        types: [python]
+
+      # ------------------- COVERAGE -------------------
+
+      - id: C1-pytest
+        name: C1) Pytest
+        entry: uv run pytest
+        language: system
+        pass_filenames: false
+        types: [python]
+
+  # ------------------- THEN, EXTERNAL REPOS ---------------------
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.8
+    hooks:
+      - id: actionlint
+        name: B7) Actionlint (GitHub Actions Linter)
+        files: ^\.github/workflows/.*\.ya?ml$
+
