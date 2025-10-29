@@ -80,3 +80,7 @@ jobs:
           # If gh-pages does not exist yet, mike will create it on first push.
           uv run mike deploy --push --update-aliases dev
           # Do not set default here; release workflow will set 'latest' as default.
+
+      - name: D4) Make 'dev' the site default at root (/)
+        run: |
+          uv run mike set-default --push dev

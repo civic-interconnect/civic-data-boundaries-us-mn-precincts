@@ -20,7 +20,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
-from typing import Any
+from typing import Any, cast
 
 from civic_lib_core import log_utils
 import geopandas as gpd
@@ -119,22 +119,32 @@ def _normalize_columns(df: gpd.GeoDataFrame, to_lower: bool, trim: bool) -> gpd.
 
 
 def _rename_columns(df: gpd.GeoDataFrame, mapping: dict[str, str]) -> gpd.GeoDataFrame:
-    return df.rename(columns=mapping) if mapping else df
+    """Rename columns but keep GeoDataFrame typing."""
+    if not mapping:
+        return df
+    renamed = df.rename(columns=mapping)
+    # Pyright: rename returns a DataFrame | GeoDataFrame; cast it back.
+    return cast("gpd.GeoDataFrame", renamed)
 
 
 def _keep_columns(df: gpd.GeoDataFrame, keep: list[str]) -> gpd.GeoDataFrame:
+    """Column subset while preserving GeoDataFrame type and geometry CRS."""
     if not keep:
         return df
     cols = [c for c in keep if c in df.columns]
     if "geometry" not in cols:
         cols.append("geometry")
-    return df[cols]
+    # Use GeoDataFrame constructor to preserve type information for Pyright.
+    return gpd.GeoDataFrame(df.loc[:, cols], geometry="geometry", crs=df.crs)
 
 
 def _add_constant_fields(df: gpd.GeoDataFrame, add_fields: dict[str, Any]) -> gpd.GeoDataFrame:
-    for k, v in (add_fields or {}).items():
-        df[k] = v
-    return df
+    """Assign constant fields and keep GeoDataFrame typing."""
+    if add_fields:
+        for k, v in add_fields.items():
+            df[k] = v
+    # Explicit cast to satisfy static type checker that df remains a GeoDataFrame.
+    return cast("gpd.GeoDataFrame", df)
 
 
 # -------------------------

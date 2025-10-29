@@ -55,14 +55,7 @@ Run the pre-commit hooks (twice, if needed):
 pre-commit run --all-files
 ```
 
-## DEV 3. Regenerate (Optional) and Build and Inspect Package
-
-```shell
-uv run civic-us-cd118 fetch
-uv run civic-us-cd118 export
-uv run civic-us-cd118 index
-uv run civic-us-cd118 cleanup
-```
+## DEV 3. Build and Inspect Package
 
 ```shell
 uv build
