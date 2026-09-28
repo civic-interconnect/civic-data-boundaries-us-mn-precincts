@@ -11,6 +11,10 @@ and this project adheres to **[Semantic Versioning](https://semver.org/spec/v2.0
 
 ## [Unreleased]
 
+---
+
+## [0.2.0] - 2026-09-28
+
 ### Added
 
 - Added the generated `2026-05` Minnesota precinct snapshot derived from the Minnesota Secretary of State statewide GeoJSON source.
@@ -165,13 +169,6 @@ git tag vX.Y.Z -m "X.Y.Z"
 git push origin vX.Y.Z
 ```
 
-Create GitHub Release after setting up Zenodo and pushing a tag,
-for example with a command like this:
-
-```shell
-gh release create v0.1.1 --verify-tag --title "0.1.1"  --generate-notes
-```
-
 Then:
 
 1. Confirm the GitHub Release was created successfully.
@@ -187,7 +184,8 @@ git push origin :refs/tags/vX.Z.Y
 
 ## Links
 
-[Unreleased]: https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/releases/tag/v0.2.0
 [0.1.1]: https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/releases/tag/v0.1.1
 [0.1.0]: https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/releases/tag/v0.1.0
 [0.0.1]: https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/releases/tag/v0.0.1

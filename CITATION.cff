@@ -12,7 +12,7 @@ message: "If you use this work, please cite it using the metadata in CITATION.cf
 type: software
 
 title: "Civic Data Boundaries: U.S. Minnesota Precincts"
-version: "0.1.1"
+version: "0.2.0"
 date-released: 2026-09-28
 
 authors:
@@ -57,7 +57,7 @@ preferred-citation:
       affiliation: Civic Interconnect
   title: "Civic Data Boundaries: U.S. Minnesota Precincts"
   year: 2026
-  version: "0.1.1"
+  version: "0.2.0"
 
 references:
   - type: data
