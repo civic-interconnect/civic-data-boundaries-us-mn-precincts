@@ -18,13 +18,9 @@ __all__ = [
 ]
 
 
-def get_repo_root(levels_up: int = 3) -> Path:
-    """Return the root directory of this repo by walking up a fixed number of parent folders.
-
-    Defaults to 3 levels up, assuming this file is under:
-        src/civic_data_boundaries_us/utils/
-    """
-    return Path(__file__).resolve().parents[levels_up]
+def get_repo_root() -> Path:
+    """Return the working directory used for data input and output."""
+    return Path.cwd()
 
 
 # ---------- DATA-IN ----------

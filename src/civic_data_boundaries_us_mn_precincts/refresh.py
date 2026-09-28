@@ -1,6 +1,7 @@
 """Refresh Minnesota precinct data from the official statewide source."""
 
 from datetime import UTC, datetime
+from importlib.resources import files
 import json
 from urllib.error import URLError
 from urllib.request import Request, urlopen
@@ -13,7 +14,6 @@ from civic_data_boundaries_us_mn_precincts import index as index_mod
 from civic_data_boundaries_us_mn_precincts.utils.get_paths import (
     get_data_in_dir,
     get_data_out_dir,
-    get_repo_root,
 )
 
 logger = log_utils.logger
@@ -24,10 +24,13 @@ class RefreshError(RuntimeError):
 
 
 def _load_source_url() -> str:
-    cfg_path = get_repo_root() / "data-config" / "us_mn_precincts.yaml"
-
-    with cfg_path.open("r", encoding="utf-8") as file:
-        config = yaml.safe_load(file) or {}
+    """Load the official statewide source URL from packaged configuration."""
+    config_text = (
+        files("civic_data_boundaries_us_mn_precincts")
+        .joinpath("data", "us_mn_precincts.yaml")
+        .read_text(encoding="utf-8")
+    )
+    config = yaml.safe_load(config_text) or {}
 
     try:
         return str(config["layers"]["mn_precincts_statewide"]["url"])
@@ -36,6 +39,7 @@ def _load_source_url() -> str:
 
 
 def _parse_source_date(value: str) -> str:
+    """Normalize the source date to ISO 8601 YYYY-MM-DD format."""
     normalized = " ".join(value.replace(",", ", ").split())
 
     for fmt in ("%B %d, %Y", "%b %d, %Y", "%Y-%m-%d"):
@@ -53,6 +57,7 @@ def _parse_source_date(value: str) -> str:
 
 
 def _read_source_metadata(data: bytes) -> tuple[str, str]:
+    """Read the source date and derive the snapshot version."""
     try:
         payload = json.loads(data)
     except json.JSONDecodeError as exc:
@@ -70,6 +75,7 @@ def _read_source_metadata(data: bytes) -> tuple[str, str]:
 
 
 def _already_current(version: str, source_date: str) -> bool:
+    """Return whether the generated snapshot already matches the source date."""
     metadata_path = (
         get_data_out_dir()
         / "states"
@@ -89,6 +95,7 @@ def _already_current(version: str, source_date: str) -> bool:
 
 
 def _download(url: str) -> bytes:
+    """Download the official statewide precinct source."""
     request = Request(
         url,
         headers={"User-Agent": "civic-interconnect-mn-precincts/1"},
