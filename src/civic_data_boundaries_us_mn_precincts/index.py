@@ -131,7 +131,7 @@ def build_index_main() -> int:
             nfeat = _compute_feature_count(geojson)
             flat_index.append(
                 {
-                    "path": str(geojson.relative_to(out_root)),
+                    "path": geojson.relative_to(out_root).as_posix(),
                     "bbox": bbox,
                     "features": nfeat,
                 }

@@ -9,11 +9,11 @@
 # WHY: Centralizes project documentation configuration.
 
 [project]
-site_name = "Docs" # CUSTOM: Set the name that appears in the browser tab.
-site_url = "https://civic-interconnect.github.io/civic_data_boundaries_us_mn_precincts/"
-repo_url = "https://github.com/civic-interconnect/civic_data_boundaries_us_mn_precincts"
-repo_name = "civic_data_boundaries_us_mn_precincts"
-site_description = "Project Documentation" # CUSTOM: Set the description.
+site_name = "Minnesota Precinct Boundaries"
+site_url = "https://civic-interconnect.github.io/civic-data-boundaries-us-mn-precincts/"
+repo_url = "https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts"
+repo_name = "civic-data-boundaries-us-mn-precincts"
+site_description = "Adapter and reproducible processing pipeline for Minnesota precinct boundaries"
 docs_dir = "docs" # source directory for documentation markdown files
 site_dir = "site" # output directory for generated site (ignored by Git; not in repo)
 edit_uri = "edit/main/docs/" # "Edit this page" links (GitHub)
@@ -21,7 +21,7 @@ edit_uri = "edit/main/docs/" # "Edit this page" links (GitHub)
 [project.extra]
 # WHY: Social links provide easy access to project repositories and profiles.
 social = [
-    {icon = "fontawesome/brands/github", link = "https://github.com/civic-interconnect/civic_data_boundaries_us_mn_precincts" },
+    {icon = "fontawesome/brands/github", link = "https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts" },
 ]
 
 [project.markdown_extensions]

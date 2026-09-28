@@ -4,11 +4,13 @@
   "source": "Minnesota Secretary of State",
   "license": "Public domain",
   "geometry_type": "Polygon",
-  "generated_at": "2026-09-28 05:18:10 UTC",
-  "total_files": 2,
-  "total_features": 8210,
+  "generated_at": "2026-09-28 06:02:27 UTC",
+  "total_files": 4,
+  "total_features": 16422,
   "files_indexed": [
-    "states\\minnesota\\precincts\\2025-04\\mn-precincts-full.geojson",
-    "states\\minnesota\\precincts\\2025-04\\mn-precincts-web.geojson"
+    "states/minnesota/precincts/2025-04/mn-precincts-full.geojson",
+    "states/minnesota/precincts/2025-04/mn-precincts-web.geojson",
+    "states/minnesota/precincts/2026-05/mn-precincts-full.geojson",
+    "states/minnesota/precincts/2026-05/mn-precincts-web.geojson"
   ]
 }

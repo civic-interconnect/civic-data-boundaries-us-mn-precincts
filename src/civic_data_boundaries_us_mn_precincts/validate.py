@@ -78,12 +78,36 @@ def _require_columns(gdf: gpd.GeoDataFrame, cols: Iterable[str]) -> None:
         raise ValidateError(f"Missing required columns: {missing}")
 
 
-def _check_precinct_id_unique(gdf: gpd.GeoDataFrame, col: str = "precinct_id") -> None:
+def _check_precinct_id_consistency(
+    gdf: gpd.GeoDataFrame,
+    col: str = "precinct_id",
+) -> None:
+    """Require duplicate precinct IDs to have consistent attributes."""
     if col not in gdf.columns:
         return
-    dups = gdf[col][gdf[col].duplicated()].unique()
-    if len(dups) > 0:
-        raise ValidateError(f"Duplicate {col} values: {list(dups)[:10]}...")
+
+    duplicate_rows = gdf[gdf[col].duplicated(keep=False)]
+
+    if duplicate_rows.empty:
+        return
+
+    compare_columns = [
+        "precinct_name",
+        "county",
+        "us_house",
+        "mn_senate",
+        "mn_house",
+        "county_commission",
+        "snapshot_version",
+        "snapshot_date",
+    ]
+
+    for precinct_id, group in duplicate_rows.groupby(col):
+        for column in compare_columns:
+            if group[column].nunique(dropna=False) > 1:
+                raise ValidateError(
+                    f"Conflicting values for {col} {precinct_id!r} in column {column!r}"
+                )
 
 
 def main(version: str) -> int:
@@ -96,7 +120,7 @@ def main(version: str) -> int:
         gdf = _load_gdf(full_path)
 
         _require_columns(gdf, REQUIRED_COLUMNS)
-        _check_precinct_id_unique(gdf, "precinct_id")
+        _check_precinct_id_consistency(gdf, "precinct_id")
 
         logger.info("Validation passed.")
         return 0

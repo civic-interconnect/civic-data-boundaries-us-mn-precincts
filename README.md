@@ -1,11 +1,11 @@
 # civic-data-boundaries-us-mn-precincts
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23005433.svg)](https://zenodo.org/records/23005433)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23006553.svg)](https://zenodo.org/records/23006553)
 [![PyPI](https://img.shields.io/pypi/v/civic-data-boundaries-us-mn-precincts.svg)](https://pypi.org/project/civic-data-boundaries-us-mn-precincts/)
-[![Python versions](https://img.shields.io/pypi/pyversions/civic-data-boundaries-us-mn-precincts.svg)](https://pypi.org/project/civic-data-boundaries-us-mn-precincts/)
+[![Python 3.14](https://img.shields.io/badge/python-3.14%2B-blue?logo=python)](pyproject.toml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![CI Status](https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/actions/workflows/ci.yml/badge.svg)](https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/actions/workflows/ci.yml)
-[![Docs](https://img.shields.io/badge/docs-mkdocs--material-blue)](https://civic-interconnect.github.io/civic-data-boundaries-us-mn-precincts/)
+[![CI Status](https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/actions/workflows/ci-python-zensical.yml/badge.svg)](https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/actions/workflows/ci-python-zensical.yml)
+[![Docs](https://img.shields.io/badge/docs-Zensical-blue)](https://civic-interconnect.github.io/civic-data-boundaries-us-mn-precincts/)
 
 > Civic Boundary Data for [Civic Interconnect](https://github.com/civic-interconnect) for Minnesota precincts.
 
@@ -19,22 +19,17 @@ GeoJSON is a geospatial data format based on JSON (JavaScript Object Notation) d
 
 These files are intended to provide basic information regarding the location of election districts within the state. For the most accurate information on precincts and districts, as well as polling place information, please use the [Polling Place Finder](https://www.sos.mn.gov/elections-voting/election-day-voting/where-do-i-vote/).
 
-## Minnesota precincts - April 2025 (6225 KB json)
+## Current Snapshot
 
-| Congressional District                         | as of April 2025      |
-| ---------------------------------------------- | --------------------- |
-| District 1 (southern Minnesota)                | C.D. 1 (1062 KB json) |
-| District 2 (south Metro)                       | C.D. 2 (383 KB json)  |
-| District 3 (greater Hennepin County)           | C.D. 3 (341 KB json)  |
-| District 4 (Ramsey County and suburbs)         | C.D. 4 (217 KB json)  |
-| District 5 (Minneapolis and suburbs)           | C.D. 5 (171 KB json)  |
-| District 6 (northwestern Metro, St Cloud area) | C.D. 6 (578 KB json)  |
-| District 7 (western Minnesota)                 | C.D. 7 (1760 KB json) |
-| District 8 (northeastern Minnesota)            | C.D. 8 (1720 KB json) |
+The current statewide source reports:
+
+- Source date: `2026-05-01`
+- Snapshot version: `2026-05`
+- Source: Minnesota Secretary of State statewide precinct GeoJSON
+
+Snapshot version and date are derived automatically from the source metadata.
 
 For state and county boundaries, see [civic-data-boundaries-us](https://github.com/civic-interconnect/civic-data-boundaries-us/).
-
----
 
 ## Process
 
@@ -77,37 +72,62 @@ snapshot_date = "2026-05-01"
 ## Installation
 
 ```shell
+uv add civic-data-boundaries-us-mn-precincts
+```
+
+or with `pip`:
+
+```shell
 pip install civic-data-boundaries-us-mn-precincts
 ```
 
-## Pipeline
-
-This repository uses a reproducible data pipeline built on the same conventions as other Civic Interconnect datasets (data-config/, data-in/, data-out/).
+The command-line interface is installed as:
 
 ```shell
-# Place statewide GeoJSON input
-# data-in/states/minnesota/precincts_2025-04.json
+civic-us-mn --help
+```
 
-# 1) Build (copy/normalize/add snapshot metadata)
-civic-us-mn build --version 2025-04
+## Usage
 
-# 2) Validate (CRS, required columns, geometry, basic uniqueness)
-civic-us-mn validate --version 2025-04
+Refresh the current Minnesota precinct snapshot from the official statewide source:
 
-# 3) Index (flat index, manifest, state layer pointers)
+```shell
+civic-us-mn refresh
+```
+
+The refresh command:
+
+1. Downloads the current statewide GeoJSON from the Minnesota Secretary of State.
+2. Reads and normalizes the source date.
+3. Derives the snapshot version from the source date.
+4. Writes the downloaded source under `data-in/`.
+5. Builds normalized GeoJSON under `data-out/`.
+6. Validates the generated snapshot.
+7. Regenerates the dataset indexes.
+
+Downloaded source files under `data-in/` are reproducible local inputs and are not committed.
+
+Generated publication artifacts under `data-out/` are committed.
+
+### Additional Commands
+
+Validate a generated snapshot:
+
+```shell
+civic-us-mn validate --version 2026-05
+```
+
+Regenerate dataset indexes:
+
+```shell
 civic-us-mn index
-
 ```
 
-Or use `uv`:
+Build from an already downloaded source file:
 
 ```shell
-uv run python -m civic_data_boundaries_us_mn_precincts.build_layer --version 2025-04
-uv run python -m civic_data_boundaries_us_mn_precincts.validate --version 2025-04
-uv run python -m civic_data_boundaries_us_mn_precincts.index
+civic-us-mn build --version 2026-05
 ```
-
----
 
 ## Development
 
@@ -134,3 +154,11 @@ uv audit
 ## References
 
 [State of Minnesota - Election Administration & Campaigns - Data & Maps - GeoJSON files](https://www.sos.mn.gov/election-administration-campaigns/data-maps/geojson-files/)
+
+## Citation
+
+[CITATION.cff](./CITATION.cff)
+
+## License
+
+[MIT](./LICENSE)

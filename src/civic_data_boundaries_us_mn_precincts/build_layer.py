@@ -338,6 +338,11 @@ def main(
             mapping=build_cfg.get("fields_rename") or {},
         )
 
+        gdf = _keep_columns(
+            gdf,
+            keep=build_cfg.get("fields_keep") or [],
+        )
+
         add_fields: dict[str, Any] = {
             "snapshot_version": version,
         }
@@ -348,11 +353,6 @@ def main(
         gdf = _add_constant_fields(
             gdf,
             add_fields=add_fields,
-        )
-
-        gdf = _keep_columns(
-            gdf,
-            keep=build_cfg.get("fields_keep") or [],
         )
 
         if bool(build_cfg.get("repair_geometries", True)):

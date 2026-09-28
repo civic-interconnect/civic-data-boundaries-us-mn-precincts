@@ -11,6 +11,19 @@ and this project adheres to **[Semantic Versioning](https://semver.org/spec/v2.0
 
 ## [Unreleased]
 
+### Added
+
+- Added the generated `2026-05` Minnesota precinct snapshot derived from the Minnesota Secretary of State statewide GeoJSON source.
+
+### Changed
+
+- Updated precinct validation to preserve multiple source features that share a precinct identifier when their normalized precinct attributes are consistent.
+- Updated the Minnesota precinct index to identify `2026-05` as the latest published snapshot.
+
+### Fixed
+
+- Changed generated index paths to use portable forward-slash paths instead of Windows path separators.
+
 ---
 
 ## [0.1.1] - 2026-09-28
@@ -88,40 +101,44 @@ Follow these steps exactly when creating a new release.
 
 1.1. CHANGELOG.md: add section, move unreleased entries, update links
 1.2. CITATION.cff: update version and date-released (version appears twice)
-1.3. pyproject.toml: update version (near top of the file)
 
-### Task 2. Validate
+### Task 2. Refresh Data, Update, and Validate
 
 Run:
 
 ```powershell
+# fetch new data
+civic-us-mn refresh
+civic-us-mn validate --version 2026-05
+civic-us-mn index
+
 # update
 .\sit.ps1
 
 # Update GitHub Actions and pin all action references to immutable SHAs
 uvx gha-tools autoupdate --pin=all --write .github/workflows
 
-# Hooks
+# Update hooks
 uvx prek update
 git add -A
 uvx prek run --all-files
 
-# Then audit the resulting GitHub configuration for security findings
+# Audit the resulting GitHub configuration for security findings
 uvx zizmor@latest .github/
 
-# validate files
+# Validate citation metadata
 uvx cffconvert --validate
 
-# format markdown
+# Format markdown
 npx markdownlint-cli2 --fix
 
-# clean generated (optional)
+# Clean generated (optional)
 Get-ChildItem -Path . -Recurse -Directory -Filter "*__pycache__*" | Remove-Item -Recurse -Force
 Get-ChildItem -Path . -Recurse -Directory -Filter ".*_cache"  | Remove-Item -Recurse -Force
 Get-ChildItem -Path "src" -Recurse -Directory -Name "*.egg-info" | Remove-Item -Recurse -Force
 Remove-Item -Path "build", "dist", "site" -Recurse -Force
 
-# build and check
+# Build and inspect the package
 Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
 uv build
 Get-ChildItem dist
