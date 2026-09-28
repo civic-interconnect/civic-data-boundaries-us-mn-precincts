@@ -12,8 +12,8 @@ message: "If you use this work, please cite it using the metadata in CITATION.cf
 type: software
 
 title: "Civic Data Boundaries: U.S. Minnesota Precincts"
-version: "0.1.0"
-date-released: 2026-09-27
+version: "0.1.1"
+date-released: 2026-09-28
 
 authors:
   - family-names: Case
@@ -24,6 +24,10 @@ authors:
 repository-code: "https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts"
 url: "https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts"
 license: MIT
+
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.23006553"
 
 abstract: >
   Reproducible software, configuration, metadata, validation, and generated
@@ -53,7 +57,7 @@ preferred-citation:
       affiliation: Civic Interconnect
   title: "Civic Data Boundaries: U.S. Minnesota Precincts"
   year: 2026
-  version: "0.1.0"
+  version: "0.1.1"
 
 references:
   - type: data

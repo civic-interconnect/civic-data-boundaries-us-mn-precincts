@@ -1,7 +1,7 @@
 # ============================================================
 # .github/workflows/release-pypi.yml
 # ============================================================
-# Updated: 2026-06-06
+# Updated: 2026-09-28
 #
 # WHY: Publish a tagged Python package release to PyPI.
 # REQ: Trigger ONLY on version tags like v1.2.3.
@@ -82,17 +82,24 @@ jobs:
 
       # === RELEASE AND PUBLISH ===
 
-      - name: B1) Create GitHub Release and upload artifacts
+      - name: B1) Create or update GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
-            dist/*.whl \
-            dist/*.tar.gz \
-            --verify-tag \
-            --title "$GITHUB_REF_NAME" \
-            --generate-notes \
-            --latest
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" \
+              dist/*.whl \
+              dist/*.tar.gz \
+              --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              dist/*.whl \
+              dist/*.tar.gz \
+              --verify-tag \
+              --title "$GITHUB_REF_NAME" \
+              --generate-notes \
+              --latest
+          fi
 
       - name: B2) Publish to PyPI with Trusted Publishing
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2

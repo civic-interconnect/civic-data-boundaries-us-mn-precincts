@@ -164,7 +164,6 @@ packages = ["src/civic_data_boundaries_us_mn_precincts"]
 [tool.hatch.build.targets.sdist]
 include = [
     "/src",
-    "/data-config",
     "/LICENSE",
     "/README.md",
     "/pyproject.toml",

@@ -13,6 +13,15 @@ and this project adheres to **[Semantic Versioning](https://semver.org/spec/v2.0
 
 ---
 
+## [0.1.1] - 2026-09-28
+
+### Added
+
+- Added citation metadata and Zenodo archiving support.
+- Added initial PyPI publishing through GitHub Actions Trusted Publishing.
+
+---
+
 ## [0.1.0] - 2026-09-27
 
 ### Added
@@ -113,6 +122,7 @@ Get-ChildItem -Path "src" -Recurse -Directory -Name "*.egg-info" | Remove-Item -
 Remove-Item -Path "build", "dist", "site" -Recurse -Force
 
 # build and check
+Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
 uv build
 Get-ChildItem dist
 $WHEEL = Get-ChildItem dist\*.whl | Select-Object -First 1
@@ -142,7 +152,7 @@ Create GitHub Release after setting up Zenodo and pushing a tag,
 for example with a command like this:
 
 ```shell
-gh release create v1.1.2 --verify-tag --title "1.1.2"  --generate-notes
+gh release create v0.1.1 --verify-tag --title "0.1.1"  --generate-notes
 ```
 
 Then:
@@ -160,7 +170,8 @@ git push origin :refs/tags/vX.Z.Y
 
 ## Links
 
-[Unreleased]: https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/releases/tag/v0.1.1
 [0.1.0]: https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/releases/tag/v0.1.0
 [0.0.1]: https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/releases/tag/v0.0.1
 

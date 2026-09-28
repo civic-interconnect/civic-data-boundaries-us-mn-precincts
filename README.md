@@ -1,5 +1,6 @@
 # civic-data-boundaries-us-mn-precincts
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23005433.svg)](https://zenodo.org/records/23005433)
 [![PyPI](https://img.shields.io/pypi/v/civic-data-boundaries-us-mn-precincts.svg)](https://pypi.org/project/civic-data-boundaries-us-mn-precincts/)
 [![Python versions](https://img.shields.io/pypi/pyversions/civic-data-boundaries-us-mn-precincts.svg)](https://pypi.org/project/civic-data-boundaries-us-mn-precincts/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
