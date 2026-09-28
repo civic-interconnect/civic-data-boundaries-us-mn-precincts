@@ -13,7 +13,14 @@ and this project adheres to **[Semantic Versioning](https://semver.org/spec/v2.0
 
 ---
 
-## [0.0.2] - 2026-09-27
+## [0.1.0] - 2026-09-27
+
+### Added
+
+- Added `civic-us-mn refresh` to refresh Minnesota precinct data from the official statewide source.
+- Added automatic derivation of `snapshot_date` and `snapshot_version` from source metadata.
+- Added automated download, build, validation, and index generation for the current precinct snapshot.
+- Added validation of the complete normalized precinct field contract.
 
 ### Changed
 
@@ -25,6 +32,9 @@ and this project adheres to **[Semantic Versioning](https://semver.org/spec/v2.0
 - Replaced the pre-commit runner with `prek`.
 - Updated Ruff, pytest, and repository validation configuration.
 - Updated continuous integration to the current Python and Zensical workflow.
+- Updated precinct source configuration to use the current Minnesota Secretary of State statewide GeoJSON source.
+- Changed downloaded source files under `data-in/` to local reproducible inputs rather than committed repository artifacts.
+- Updated generated snapshot metadata to record the derived snapshot version and source date.
 
 ### Removed
 
@@ -95,6 +105,18 @@ uvx cffconvert --validate
 
 # format markdown
 npx markdownlint-cli2 --fix
+
+# clean generated (optional)
+Get-ChildItem -Path . -Recurse -Directory -Filter "*__pycache__*" | Remove-Item -Recurse -Force
+Get-ChildItem -Path . -Recurse -Directory -Filter ".*_cache"  | Remove-Item -Recurse -Force
+Get-ChildItem -Path "src" -Recurse -Directory -Name "*.egg-info" | Remove-Item -Recurse -Force
+Remove-Item -Path "build", "dist", "site" -Recurse -Force
+
+# build and check
+uv build
+Get-ChildItem dist
+$WHEEL = Get-ChildItem dist\*.whl | Select-Object -First 1
+uv run python -m zipfile -l $WHEEL.FullName
 ```
 
 ### Task 3. Commit and Push
@@ -138,8 +160,8 @@ git push origin :refs/tags/vX.Z.Y
 
 ## Links
 
-[Unreleased]: https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/compare/v0.0.2...HEAD
-[0.0.2]: https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/releases/tag/v0.0.2
+[Unreleased]: https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/releases/tag/v0.1.0
 [0.0.1]: https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts/releases/tag/v0.0.1
 
 <!-- markdownlint-enable MD024 -->

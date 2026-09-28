@@ -1,0 +1,64 @@
+# ============================================================
+# CITATION.cff (How to cite this project)
+# ============================================================
+
+# REQ.UNIVERSAL: Professional open projects SHOULD include this file.
+# USAGE: See https://citation-file-format.github.io/ for details.
+# check with:
+# uvx cffconvert --validate
+
+cff-version: "1.2.0"
+message: "If you use this work, please cite it using the metadata in CITATION.cff."
+type: software
+
+title: "Civic Data Boundaries: U.S. Minnesota Precincts"
+version: "0.1.0"
+date-released: 2026-09-27
+
+authors:
+  - family-names: Case
+    given-names: Denise M.
+    orcid: "https://orcid.org/0000-0001-6165-7389"
+    affiliation: Civic Interconnect
+
+repository-code: "https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts"
+url: "https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts"
+license: MIT
+
+abstract: >
+  Reproducible software, configuration, metadata, validation, and generated
+  GeoJSON snapshots for official Minnesota precinct boundaries. Boundary
+  geometries are obtained from the Minnesota Secretary of State statewide
+  GeoJSON source. The project normalizes source fields, derives snapshot
+  version and date metadata, validates generated outputs, and produces
+  publication-ready precinct boundary artifacts for Civic Interconnect.
+  Repository software and documentation are released under the MIT License.
+
+keywords:
+  - civic data
+  - geographic boundaries
+  - Minnesota
+  - precincts
+  - GeoJSON
+  - reproducible data
+  - GIS
+  - election geography
+
+preferred-citation:
+  type: software
+  authors:
+    - family-names: Case
+      given-names: Denise M.
+      orcid: "https://orcid.org/0000-0001-6165-7389"
+      affiliation: Civic Interconnect
+  title: "Civic Data Boundaries: U.S. Minnesota Precincts"
+  year: 2026
+  version: "0.1.0"
+
+references:
+  - type: data
+    title: "Minnesota Precincts GeoJSON"
+    authors:
+      - name: "Minnesota Secretary of State"
+    url: "https://www.sos.mn.gov/media/2791/mn-precincts.json"
+    date-released: 2026-05-01
