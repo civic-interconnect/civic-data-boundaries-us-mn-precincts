@@ -1,21 +1,36 @@
-# .pre-commit-config.yaml
+# ============================================================
+# .pre-commit-config.yaml (ALL-PY-SRC-REPOS)
+# ============================================================
+# Updated: 2026-09-25
 #
-# This file runs quality checks through uvx.
+# REQ: Professional projects using Python src/ SHOULD include git hooks.
+# WHY: Minimize git diffs, catch common issues early, and support collaboration.
 #
-# Install after creating virtual environment:
-#   uvx pre-commit install
+# OBS: These hooks use and do NOT override:
+#   - .editorconfig (whitespace / indentation)
+#   - .gitattributes (EOL normalization)
+#   - pyproject.toml (Python tool settings)
 #
-# Periodically update:
-#   uvx pre-commit autoupdate
+# OPTIONAL LOCAL USAGE (keep tools updated):
+#   uv run prek install --force
+#   uv run prek update
 #
-# Run all checks (might have to run it twice):
-#   uvx pre-commit run --all-files
----
-# Don't attempt to format these kinds of files
+# OPTIONAL LOCAL USAGE (run all hooks on all git-tracked files):
+#   git add -A
+#   uv run prek run --all-files
+#   The first time, it may indicate errors / fixes,
+#   So just re-run the command (up arrow) and it often goes all green.
+#
+# NOTE: Enabling hooks is optional. It is not needed to clone or commit.
+# You can skip it with the --no-verify option, e.g.:
+#   git commit -m "your message" --no-verify
+
 exclude: |
   (?x)^(
-    \.DS_Store|
+    .*\.egg-info/|
+    .*\.log|
     \.coverage|
+    \.DS_Store|
     \.ipynb_checkpoints/|
     \.mypy_cache/|
     \.nox/|
@@ -23,77 +38,82 @@ exclude: |
     \.ruff_cache/|
     \.tox/|
     \.venv/|
-    .*\.(egg-info)/|
+    __pycache__/|
+    _minted.*/|
     build/|
     coverage\.xml|
     dist/|
     htmlcov/|
+    lake-packages/|
     node_modules/|
+    out/|
     site/
   )
 
 repos:
+  # === REPO: PRE-COMMIT HOOKS (cross-platform, zero config) ===
+  #
+  # These hooks prevent problems that show up later as:
+  #   - mysterious diffs
+  #   - broken builds on another OS
 
-  # ------------------- ALL LOCAL FIRST ---------------------
-
-  - repo: local
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
     hooks:
-      # ------------------- BASELINE CHECKS -------------------
+      # === PRE-COMMIT: NORMALIZE FILE FORMATTING ===
 
-      - id: B1-validate-pyproject
-        name: B1) Validate pyproject
-        entry: uvx validate-pyproject
-        language: system
-        pass_filenames: false
-        files: pyproject.toml
+      - id: trailing-whitespace
+        name: A1) Clean trailing whitespace (per .editorconfig)
+        args: [--markdown-linebreak-ext=md] # Preserves markdown double-space line breaks
 
-      - id: B2-ruff-format
-        name: B2) Ruff format (normalize EOF and whitespace)
-        entry: uvx ruff format
-        language: system
-        types: [python]
+      - id: end-of-file-fixer
+        name: A2) End files with a newline (per .gitattributes)
 
-      - id: B3-ruff-check
-        name: B3) Ruff check (lint, autofix)
-        entry: uvx ruff check --fix
-        language: system
-        types: [python]
+      - id: mixed-line-ending
+        name: A3) Normalize line endings to LF before linters
+        args: [--fix=lf] # OBS: Windows working copies may be CRLF.
 
-      - id: B4-deptry
-        name: B4) Deptry (dependency check)
-        entry: uvx deptry . 
-        language: system
-        pass_filenames: false
+      # === PRE-COMMIT: CHECK DATA FILE FORMATS ===
 
-      - id: B5-pyright
-        name: B5) Pyright (type checking)
-        entry: uvx pyright
-        language: system
-        pass_filenames: false
-        types: [python]
+      - id: check-json
+        name: B1) Validate JSON syntax (except .vscode/)
+        # WHY: VS Code settings may include comments, which are non-standard JSON.
+        exclude: (^|/)\.vscode/.*\.json$
 
-      - id: B6-bandit
-        name: B6) Bandit (security)
-        entry: uvx bandit -c pyproject.toml -r src
-        language: system
-        pass_filenames: false
-        types: [python]
+      - id: check-toml
+        name: B2) Validate TOML syntax
 
-      # ------------------- COVERAGE -------------------
+      - id: check-yaml
+        name: B3) Validate YAML syntax
+        files: \.(yml|yaml)$
+        # WHY: VS Code config files are editor-specific.
+        exclude: ^\.vscode/
 
-      - id: C1-pytest
-        name: C1) Pytest
-        entry: uv run pytest
-        language: system
-        pass_filenames: false
-        types: [python]
+      # === PRE-COMMIT: CHECK FOR COMMON PROBLEMS ===
 
-  # ------------------- THEN, EXTERNAL REPOS ---------------------
+      - id: check-added-large-files
+        name: C1) Prevent accidental commits of large binaries
+        args: [--maxkb=2000] # WHY: 2MB is a common threshold for large files
 
-  - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.8
+      - id: check-merge-conflict
+        name: C2) Prevent committing merge conflicts
+
+      - id: check-case-conflict
+        name: C3) Check for filename case conflicts
+
+  # === REPO: RUFF PRE-COMMIT (for Python code) ===
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.9
     hooks:
-      - id: actionlint
-        name: B7) Actionlint (GitHub Actions Linter)
-        files: ^\.github/workflows/.*\.ya?ml$
+      # === RUFF PRE-COMMIT CHECKS ===
+      - id: ruff-format
+        name: D1) Ruff format (before linting)
 
+      - id: ruff
+        name: D2) Ruff linter (autofix errors, style issues )
+        args: [--fix, --exit-non-zero-on-fix]
+
+# === GLOBAL SETTINGS ===
+# ALT: Set fail_fast to true to stop at first failure.
+fail_fast: false # WHY: Run all hooks so all issues are visible at once.

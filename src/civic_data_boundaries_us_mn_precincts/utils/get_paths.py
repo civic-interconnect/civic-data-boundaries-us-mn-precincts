@@ -7,14 +7,14 @@ in the civic_data_boundaries_us_mn_precincts package.
 from pathlib import Path
 
 __all__ = [
-    "get_repo_root",
-    "get_data_in_dir",
-    "get_data_out_dir",
-    "get_tiger_in_dir",
-    "get_states_out_dir",
-    "get_national_out_dir",
     "get_cd118_in_dir",
     "get_cd118_out_dir",
+    "get_data_in_dir",
+    "get_data_out_dir",
+    "get_national_out_dir",
+    "get_repo_root",
+    "get_states_out_dir",
+    "get_tiger_in_dir",
 ]
 
 

@@ -25,6 +25,12 @@ REQUIRED_COLUMNS: tuple[str, ...] = (
     "precinct_id",
     "precinct_name",
     "county",
+    "us_house",
+    "mn_senate",
+    "mn_house",
+    "county_commission",
+    "snapshot_version",
+    "snapshot_date",
 )
 
 REQUIRED_FILES: tuple[str, ...] = (
@@ -36,8 +42,6 @@ REQUIRED_FILES: tuple[str, ...] = (
 
 class ValidateError(RuntimeError):
     """Custom error class for validation errors."""
-
-    pass
 
 
 def _out_dir(version: str) -> Path:
@@ -96,7 +100,7 @@ def main(version: str) -> int:
 
         logger.info("Validation passed.")
         return 0
-    except Exception as exc:
+    except ValidateError as exc:
         logger.error(f"Validation failed: {exc}")
         return 1
 

@@ -2,11 +2,13 @@
 
 Reads top-level `build:` section from data-config/us_mn_precincts.yaml.
 
-Expected YAML (see example below) defines:
-  - version (e.g., "2025-04")
-  - input_path (under data-in/)
-  - fields_* options
+Expected YAML defines:
+  - source configuration
+  - fields_* transformation options
   - write_topojson / simplify_pct (optional)
+
+Snapshot version, source date, and input path may be supplied dynamically
+by the refresh workflow.
 
 Outputs under:
   data-out/states/minnesota/precincts/<version>/
@@ -39,8 +41,6 @@ logger = log_utils.logger
 class BuildError(RuntimeError):
     """Custom exception for build errors in the MN precincts pipeline."""
 
-    pass
-
 
 # -------------------------
 # Config helpers
@@ -68,7 +68,9 @@ def _find_cfg_path() -> Path:
             cand = base / "data-config" / "us_mn_precincts.yaml"
             if cand.exists():
                 return cand
-    raise BuildError("Could not locate data-config/us_mn_precincts.yaml from known roots")
+    raise BuildError(
+        "Could not locate data-config/us_mn_precincts.yaml from known roots"
+    )
 
 
 def _load_build_cfg() -> dict[str, Any]:
@@ -84,16 +86,6 @@ def _load_build_cfg() -> dict[str, Any]:
     return build
 
 
-def _input_path(build_cfg: dict[str, Any]) -> Path:
-    rel = build_cfg.get("input_path")
-    if not rel:
-        raise BuildError("build.input_path is required")
-    p = get_data_in_dir() / rel
-    if not p.exists():
-        raise BuildError(f"Input not found: {p}")
-    return p
-
-
 def _out_dir(version: str) -> Path:
     p = get_data_out_dir() / "states" / "minnesota" / "precincts" / version
     p.mkdir(parents=True, exist_ok=True)
@@ -105,7 +97,9 @@ def _out_dir(version: str) -> Path:
 # -------------------------
 
 
-def _normalize_columns(df: gpd.GeoDataFrame, to_lower: bool, trim: bool) -> gpd.GeoDataFrame:
+def _normalize_columns(
+    df: gpd.GeoDataFrame, to_lower: bool, trim: bool
+) -> gpd.GeoDataFrame:
     cols = []
     for c in df.columns:
         nc = c
@@ -138,13 +132,15 @@ def _keep_columns(df: gpd.GeoDataFrame, keep: list[str]) -> gpd.GeoDataFrame:
     return gpd.GeoDataFrame(df.loc[:, cols], geometry="geometry", crs=df.crs)
 
 
-def _add_constant_fields(df: gpd.GeoDataFrame, add_fields: dict[str, Any]) -> gpd.GeoDataFrame:
+def _add_constant_fields(
+    df: gpd.GeoDataFrame, add_fields: dict[str, Any]
+) -> gpd.GeoDataFrame:
     """Assign constant fields and keep GeoDataFrame typing."""
     if add_fields:
         for k, v in add_fields.items():
             df[k] = v
     # Explicit cast to satisfy static type checker that df remains a GeoDataFrame.
-    return cast("gpd.GeoDataFrame", df)
+    return df
 
 
 # -------------------------
@@ -163,7 +159,7 @@ def _which_mapshaper() -> Path | None:
 def _clamped_pct(val: Any, lo: int = 0, hi: int = 50) -> int:
     try:
         v = int(val)
-    except Exception:
+    except TypeError, ValueError:
         v = 0
     return max(lo, min(hi, v))
 
@@ -172,7 +168,9 @@ def _repair_geometries(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     # Try make_valid on invalid rows only
     invalid_mask = ~gdf.geometry.is_valid
     if invalid_mask.any():
-        gdf.loc[invalid_mask, "geometry"] = gdf.loc[invalid_mask, "geometry"].map(make_valid)
+        gdf.loc[invalid_mask, "geometry"] = gdf.loc[invalid_mask, "geometry"].map(
+            make_valid
+        )
 
     # Fallback: buffer(0) for any remaining invalids (handles self-intersections)
     invalid_mask = ~gdf.geometry.is_valid
@@ -203,7 +201,7 @@ def _write_topojson(
     args += ["-o", "format=topojson", str(topo_path)]
 
     # Safe: no shell, executable discovered via PATH, arguments are constructed (not user-supplied)
-    res = subprocess.run(args, capture_output=True, text=True)  # noqa: S603
+    res = subprocess.run(args, check=False, capture_output=True, text=True)
     if res.returncode != 0:
         logger.warning(f"mapshaper failed; stdout={res.stdout} stderr={res.stderr}")
         return None
@@ -217,7 +215,14 @@ def _write_topojson(
 # -------------------------
 
 
-def _write_metadata(full_path: Path, web_name: str, topo_name: str | None, out_dir: Path) -> Path:
+def _write_metadata(
+    full_path: Path,
+    web_name: str,
+    topo_name: str | None,
+    out_dir: Path,
+    version: str,
+    snapshot_date: str | None,
+) -> Path:
     gdf = gpd.read_file(full_path)
     minx, miny, maxx, maxy = [float(x) for x in gdf.total_bounds]
     meta = {
@@ -229,10 +234,12 @@ def _write_metadata(full_path: Path, web_name: str, topo_name: str | None, out_d
             "web_topojson": topo_name,
         },
         "stats": {
-            "features": int(len(gdf)),
+            "features": len(gdf),
             "bbox": [round(minx, 6), round(miny, 6), round(maxx, 6), round(maxy, 6)],
         },
         "spatial": {"crs": "EPSG:4326", "geometry_type": "Polygon"},
+        "snapshot_version": version,
+        "snapshot_date": snapshot_date,
     }
     mp = out_dir / "metadata.json"
     with mp.open("w", encoding="utf-8") as f:
@@ -246,7 +253,11 @@ def _write_metadata(full_path: Path, web_name: str, topo_name: str | None, out_d
 # -------------------------
 
 
-def main(version: str | None = None) -> int:
+def main(
+    version: str | None = None,
+    input_path: Path | None = None,
+    snapshot_date: str | None = None,
+) -> int:
     """Build the MN precincts data layer by processing GeoJSON input and writing output files.
 
     Parameters
@@ -261,11 +272,21 @@ def main(version: str | None = None) -> int:
     """
     try:
         build_cfg = _load_build_cfg()
-        version = version or build_cfg.get("version")
         if not version:
-            raise BuildError("build.version is required")
+            raise BuildError("version is required")
 
-        src_path = _input_path(build_cfg)
+        if input_path is not None:
+            src_path = input_path
+        else:
+            rel = build_cfg.get(
+                "input_path",
+                f"states/minnesota/precincts_{version}.json",
+            )
+            src_path = get_data_in_dir() / rel
+
+        if not src_path.exists():
+            raise BuildError(f"Input not found: {src_path}")
+
         out_dir = _out_dir(version)
 
         gdf: gpd.GeoDataFrame = gpd.read_file(src_path)
@@ -276,7 +297,13 @@ def main(version: str | None = None) -> int:
             trim=bool(build_cfg.get("fields_trim", True)),
         )
         gdf = _rename_columns(gdf, mapping=build_cfg.get("fields_rename") or {})
-        gdf = _add_constant_fields(gdf, add_fields=build_cfg.get("add_fields") or {})
+        add_fields = dict(build_cfg.get("add_fields") or {})
+        add_fields["snapshot_version"] = version
+
+        if snapshot_date is not None:
+            add_fields["snapshot_date"] = snapshot_date
+
+        gdf = _add_constant_fields(gdf, add_fields=add_fields)
         gdf = _keep_columns(gdf, keep=build_cfg.get("fields_keep") or [])
         gdf = _repair_geometries(gdf)
 
@@ -309,12 +336,14 @@ def main(version: str | None = None) -> int:
             web_name=web_geojson_name,
             topo_name=topo_name,
             out_dir=out_dir,
+            version=version,
+            snapshot_date=snapshot_date,
         )
 
         logger.info("Build completed.")
         return 0
 
-    except Exception as exc:
+    except BuildError as exc:
         logger.error(f"Build failed: {exc}")
         return 1
 

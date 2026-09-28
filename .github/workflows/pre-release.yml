@@ -1,0 +1,140 @@
+# ============================================================
+# .github/workflows/pre-release.yml (ALL-PY-SRC-PYPI-REPOS)
+# ============================================================
+# Updated: 2026-06-27
+#
+# WHY: Validate tagged Python package artifacts before release.
+# REQ: Reusable by PyPI package repositories.
+# OBS: Generic only; repo-specific artifact checks belong in separate workflows.
+
+name: Pre-Release Checks and Build
+
+on:
+  workflow_call:     # WHY: Allow calling from PyPI repos in this org.
+  workflow_dispatch: # WHY: Allow manual trigger for pre-release checks if needed.
+
+permissions: # WHY: Use least privileges required.
+  contents: read
+
+env:
+  PYTHONUNBUFFERED: "1"       # WHY: Real-time logging.
+  PYTHONIOENCODING: "utf-8"   # WHY: Ensure UTF-8 encoding for international characters.
+
+jobs:
+  pre-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30 # WHY: Prevent hanging jobs. If over, it is likely stuck.
+
+    steps:
+
+      # === ASSEMBLE ===
+
+      - name: A1) Checkout repository with full history and tags
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0   # WHY: hatch-vcs needs full history to derive version from tags.
+          fetch-tags: true
+          ref: ${{ github.ref }}
+          persist-credentials: false
+          # WHY: Required so all subsequent steps can access repo files.
+
+      - name: A2) Install uv (with caching)
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: true
+          # WHY: Cache uv-managed artifacts for faster subsequent runs.
+          cache-dependency-glob: "uv.lock"
+          # WHY: Invalidate dependency cache when the committed lockfile changes.
+
+      - name: A3) Install project Python
+        run: uv python install
+        # WHY: Ensures the Python version declared in .python-version is available.
+        # OBS: uv manages the interpreter locally in the CI environment.
+
+      - name: A4) Install dependencies from committed lockfile
+        run: uv sync --frozen
+        # WHY: Install all configured dependency groups exactly from uv.lock.
+        # REQ: CI MUST fail rather than update a stale or incompatible lockfile.
+
+      - name: A5) Show tool versions
+        run: |
+          uv --version
+          uv run python --version
+          uv run python -m ruff --version
+          uv run ty --version
+          if [ -f "zensical.toml" ]; then
+            uv run python -m zensical --version
+          fi
+          uv run --no-sync prek --version 2>/dev/null \
+            || uv run --no-sync pre-commit --version 2>/dev/null \
+            || echo "No hook runner installed"
+        # WHY: Version output makes CI logs easier to debug when tools change.
+
+      - name: A6) Run repository hooks on all files (prek or pre-commit)
+        run: |
+          if uv run --no-sync prek --version > /dev/null 2>&1; then
+            echo "Hook runner: prek"
+            uv run --no-sync prek run --all-files
+          elif uv run --no-sync pre-commit --version > /dev/null 2>&1; then
+            echo "Hook runner: pre-commit"
+            uv run --no-sync pre-commit run --all-files
+          else
+            echo "::error::Neither prek nor pre-commit is installed in the project environment. Add one to the dev dependency group in pyproject.toml."
+            exit 1
+          fi
+        # WHY: Run the same repository hygiene checks used locally.
+        # OBS: Prefers prek when both are installed; both read .pre-commit-config.yaml.
+        # OBS: The runner is detected in the project environment installed by A4,
+        #      so CI uses whichever runner the repository declares.
+        # OBS: --no-sync reuses the environment from A4 without re-syncing.
+        # OBS: A clean commit should already pass without file changes.
+        # OBS: Autofixing hooks may modify the ephemeral CI checkout.
+        #      If they do, the hook runner fails because the committed files
+        #      were not already in their required final state.
+        # FIX: Run the same hook runner locally, review any autofixes, fix
+        #      remaining issues by hand, then git add, commit, and push again.
+
+      # ============================================================
+      # B) BASELINE CHECKS
+      # ============================================================
+
+      - name: B1) Verify git is clean before build
+        run: |
+          echo "Git status:"
+          git status --short
+          echo "Git describe:"
+          git describe --tags --always --dirty
+          if [[ $(git status --porcelain) ]]; then
+            echo "ERROR: Git tree is dirty before build!"
+            exit 1
+          fi
+
+      - name: B2) Build sdist + wheel
+        # WHY: hatch-vcs derives version from git tag; build before uv sync
+        # to avoid working tree changes invalidating the clean check.
+        run: uv build
+
+      - name: B3) Ensure built artifact version matches tag
+        shell: bash
+        run: |
+          set -e
+          TAG="${GITHUB_REF_NAME#v}"
+          echo "Tag version: $TAG"
+          ls dist
+          if ! ls dist/*"$TAG"*.whl dist/*"$TAG"*.tar.gz >/dev/null 2>&1; then
+            echo "ERROR: Built artifact version does not match tag $TAG"
+            exit 1
+          fi
+          echo "Artifact version matches tag."
+
+      - name: B4) Sync all dependencies from committed lockfile
+        run: uv sync --frozen
+
+      - name: B5) Validate built artifacts
+        run: uvx twine check dist/*
+
+      - name: B6) Upload built distribution artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: dist
+          path: dist/*

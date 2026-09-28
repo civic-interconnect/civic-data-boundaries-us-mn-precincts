@@ -41,7 +41,9 @@ def load_layer_config(layer_name: str) -> dict[str, Any]:
                         "chunk_max_features": layer.get(
                             "chunk_max_features", config.get("chunk_max_features")
                         ),
-                        "drop_columns": layer.get("drop_columns", config.get("drop_columns")),
+                        "drop_columns": layer.get(
+                            "drop_columns", config.get("drop_columns")
+                        ),
                         # Include all other layer-specific fields too:
                         **layer,
                     }

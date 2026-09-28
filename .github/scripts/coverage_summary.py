@@ -6,7 +6,7 @@ File: .github/scripts/coverage_summary.py
 import os
 from pathlib import Path
 
-import defusedxml.ElementTree as ET  # noqa: N817
+import defusedxml.ElementTree as ET
 
 
 def safe_int(value: str | None) -> int:

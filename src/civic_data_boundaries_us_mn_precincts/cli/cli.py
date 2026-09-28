@@ -11,7 +11,7 @@ import sys
 from civic_lib_core import log_utils
 import typer
 
-from civic_data_boundaries_us_mn_precincts import build_layer, validate
+from civic_data_boundaries_us_mn_precincts import build_layer, refresh, validate
 from civic_data_boundaries_us_mn_precincts import index as index_mod
 
 logger = log_utils.logger
@@ -20,7 +20,9 @@ app = typer.Typer(add_completion=False, help="MN Precincts CLI")
 
 @app.command("build")
 def cmd_build(
-    version: str = typer.Option(..., "--version", "-v", help="Snapshot tag like 2025-04"),
+    version: str = typer.Option(
+        ..., "--version", "-v", help="Snapshot tag like 2025-04"
+    ),
 ) -> None:
     """Build the MN precincts layer for a given snapshot version.
 
@@ -33,9 +35,18 @@ def cmd_build(
     raise typer.Exit(code)
 
 
+@app.command("refresh")
+def cmd_refresh() -> None:
+    """Refresh from the current official Minnesota statewide precinct source."""
+    code = refresh.main()
+    raise typer.Exit(code)
+
+
 @app.command("validate")
 def cmd_validate(
-    version: str = typer.Option(..., "--version", "-v", help="Snapshot tag like 2025-04"),
+    version: str = typer.Option(
+        ..., "--version", "-v", help="Snapshot tag like 2025-04"
+    ),
 ) -> None:
     """Validate the MN precincts layer for a given snapshot version.
 
@@ -60,12 +71,8 @@ def main() -> int:
 
     Runs the Typer app and handles exceptions, returning an appropriate exit code.
     """
-    try:
-        app()
-        return 0
-    except Exception as exc:
-        logger.error(f"CLI error: {exc}")
-        return 1
+    app()
+    return 0
 
 
 if __name__ == "__main__":

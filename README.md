@@ -8,17 +8,17 @@
 
 > Civic Boundary Data for [Civic Interconnect](https://github.com/civic-interconnect) for Minnesota precincts.
 
-# Source
+## Source
 
 - <https://www.sos.mn.gov/election-administration-campaigns/data-maps/geojson-files/>
 
-# GeoJSON files
+## GeoJSON files
 
 GeoJSON is a geospatial data format based on JSON (JavaScript Object Notation) designed for use in online applications. They include voting precinct boundaries as well as the name, county, and election districts (US Congress, MN Senate and House, County Commissioner) for each precinct.
 
 These files are intended to provide basic information regarding the location of election districts within the state. For the most accurate information on precincts and districts, as well as polling place information, please use the [Polling Place Finder](https://www.sos.mn.gov/elections-voting/election-day-voting/where-do-i-vote/).
 
-# Minnesota precincts - April 2025 (6225 KB json)
+## Minnesota precincts - April 2025 (6225 KB json)
 
 | Congressional District                         | as of April 2025      |
 | ---------------------------------------------- | --------------------- |
@@ -34,6 +34,44 @@ These files are intended to provide basic information regarding the location of 
 For state and county boundaries, see [civic-data-boundaries-us](https://github.com/civic-interconnect/civic-data-boundaries-us/).
 
 ---
+
+## Process
+
+```text
+Official source:
+https://www.sos.mn.gov/media/2791/mn-precincts.json
+
+        ↓
+
+Read top-level source date:
+"May 1,2026"
+
+        ↓
+
+Normalize:
+snapshot_date = "2026-05-01"
+
+        ↓
+
+Derive:
+snapshot_version = "2026-05"
+
+        ↓
+
+Save downloaded input:
+data-in/states/minnesota/precincts_2026-05.json
+
+        ↓
+
+Build output:
+data-out/states/minnesota/precincts/2026-05/
+
+        ↓
+
+Add to every output feature:
+snapshot_version = "2026-05"
+snapshot_date = "2026-05-01"
+```
 
 ## Installation
 
@@ -72,7 +110,25 @@ uv run python -m civic_data_boundaries_us_mn_precincts.index
 
 ## Development
 
-See [DEVELOPER.md](./DEVELOPER.md)
+### Clone and Open in VS Code
+
+```shell
+git clone https://github.com/civic-interconnect/civic-data-boundaries-us-mn-precincts.git
+cd civic-data-boundaries-us-mn-precincts
+code .
+```
+
+### Set Up the Project
+
+```shell
+uvx pup-clean --delete
+uv self update
+uv python pin 3.14
+uv python install
+uv lock --upgrade
+uv sync
+uv audit
+```
 
 ## References
 

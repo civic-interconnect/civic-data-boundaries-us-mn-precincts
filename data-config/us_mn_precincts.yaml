@@ -1,12 +1,9 @@
 layers:
   mn_precincts_statewide:
     nationwide: true
-    url: https://example.state.mn.us/precincts_2025-04.zip
-    output_dir: states/minnesota/precincts_2025-04
+    url: https://www.sos.mn.gov/media/2791/mn-precincts.json
     timeout_sec: 120
 build:
-  version: "2025-04"
-  input_path: "states/minnesota/precincts_2025-04.json"
   fields_lowercase: true
   fields_trim: true
 
@@ -29,10 +26,6 @@ build:
     - mn_senate
     - mn_house
     - county_commission
-
-  add_fields:
-    snapshot_version: "2025-04"
-    snapshot_date: "2025-04-10"
 
   write_topojson: false      # set true if you want a TopoJSON "web" output via mapshaper
   simplify_pct: 0            # 0 = no simplify; >0 uses mapshaper (if available) on the web copy

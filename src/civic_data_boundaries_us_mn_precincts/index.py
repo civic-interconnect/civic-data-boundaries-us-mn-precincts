@@ -23,15 +23,13 @@ logger = log_utils.logger
 class IndexBuildError(Exception):
     """Custom exception for errors encountered during index building."""
 
-    pass
-
 
 def _compute_bbox(geojson_path: Path) -> list[float] | None:
     try:
         gdf: gpd.GeoDataFrame = gpd.read_file(geojson_path)
         minx, miny, maxx, maxy = [float(x) for x in gdf.total_bounds]
         return [round(minx, 6), round(miny, 6), round(maxx, 6), round(maxy, 6)]
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.warning(f"Could not read {geojson_path.name}: {e}")
         return None
 
@@ -39,8 +37,8 @@ def _compute_bbox(geojson_path: Path) -> list[float] | None:
 def _compute_feature_count(geojson_path: Path) -> int | None:
     try:
         gdf: gpd.GeoDataFrame = gpd.read_file(geojson_path)
-        return int(len(gdf))
-    except Exception as e:
+        return len(gdf)
+    except Exception as e:  # noqa: BLE001
         logger.warning(f"Could not count features in {geojson_path.name}: {e}")
         return None
 
@@ -98,7 +96,9 @@ def _write_state_index(out_root: Path) -> Path | None:
         return None
 
     state_index = {
-        "layers": [{"id": "mn-precincts", "latest": f"precincts/{latest}/metadata.json"}]
+        "layers": [
+            {"id": "mn-precincts", "latest": f"precincts/{latest}/metadata.json"}
+        ]
     }
     p = out_root / "states" / "minnesota" / "index.json"
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -151,7 +151,7 @@ def build_index_main() -> int:
 
         return 0
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.error(f"Index build failed: {e}")
         return 1
 
@@ -160,13 +160,9 @@ def main() -> int:
     """Execute the main entry point for building the index.
 
     Returns:
-        int: 0 if the index was built successfully, 1 if an unexpected error occurred.
+        int: 0 if the index was built successfully, 1 if an error occurs.
     """
-    try:
-        return build_index_main()
-    except Exception as e:
-        logger.error(f"Index command failed unexpectedly: {e}")
-        return 1
+    return build_index_main()
 
 
 if __name__ == "__main__":
